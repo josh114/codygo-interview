@@ -10,7 +10,12 @@ export async function createAttachmentPresignedUrl(): Promise<string> {
 }
 
 export async function getUploads(): Promise<string[]> {
-  const uploads: string[] = [];
-
-  return uploads;
+  try {
+    logger.info("get uploads function invoked");
+    const uploads: string[] = await attachmentUtils.getUploads();
+    return uploads;
+  } catch (error) {
+    logger.error("An error occurred while getting uploads:", error);
+    throw error;
+  }
 }

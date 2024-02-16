@@ -1,11 +1,10 @@
 import * as AWS from "aws-sdk";
 import * as AWSXray from "aws-xray-sdk";
 import * as uuid from "uuid";
-import { ListObjectsV2Command } from "@aws-sdk/client-s3";
 
 const XAWS = AWSXray.captureAWS(AWS);
 
-const s3BucketName = process.env.S3_BUCKET_NAME;
+const s3BucketName = process.env.BUCKET_NAME;
 const UrlExpiration = 300;
 
 export class AttachmentUtils {
@@ -13,10 +12,6 @@ export class AttachmentUtils {
     private readonly s3 = new XAWS.S3({ signatureVersion: "v4" }),
     private readonly bucketName = s3BucketName
   ) {}
-
-  getAttachmentUrl(uploadId: string) {
-    return `https://${this.bucketName}.s3.amazonaws.com/${uploadId}`;
-  }
 
   getUploadUrl(): string {
     const url = this.s3.getSignedUrl("putObject", {
@@ -28,12 +23,22 @@ export class AttachmentUtils {
   }
 
   async getUploads(): Promise<string[]> {
-    const uploads: string[] = [];
-    const params: ListObjectsV2Command = {
-      Bucket: this.bucketName,
-    };
+    try {
+      const uploads: string[] = [];
+      const params: any = {
+        Bucket: this.bucketName,
+      };
 
-    const data = await this.s3.listObjectsV2({ params });
-    return uploads;
+      const data = await this.s3.listObjectsV2(params).promise();
+      for (const object of data.Contents!) {
+        const downloadUrl = `https://${this.bucketName}.s3.amazonaws.com/${object.Key}`;
+        uploads.push(downloadUrl);
+      }
+
+      return uploads;
+    } catch (error) {
+      console.error("An error occurred while getting uploads:", error);
+      throw error;
+    }
   }
 }
