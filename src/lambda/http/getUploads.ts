@@ -16,7 +16,7 @@ export const handler = middy(
     return {
       statusCode: 200,
       body: JSON.stringify({
-        items: upload,
+        items: "the get upload request was received",
       }),
     };
   }

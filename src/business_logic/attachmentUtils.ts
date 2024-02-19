@@ -4,7 +4,7 @@ import * as uuid from "uuid";
 
 const XAWS = AWSXray.captureAWS(AWS);
 
-const s3BucketName = process.env.BUCKET_NAME;
+const s3BucketName = "codygo-interview-bucket";
 const UrlExpiration = 300;
 
 export class AttachmentUtils {
